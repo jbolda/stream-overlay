@@ -5,8 +5,8 @@
   "source": "src/index.html",
   "browserlist": "Chrome >= 95",
   "staticFiles": {
-    "staticPath": "src/assets2",
-    "staticOutPath": "assets2"
+    "staticPath": "src/assets",
+    "staticOutPath": "assets"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
