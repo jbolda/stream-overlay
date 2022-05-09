@@ -12,19 +12,14 @@ import Model from "./model.js";
 export function Frame(props) {
   const twitchClient = useTwitch();
   if (twitchClient) {
-    const [channel, tags, message, self] = useStream(
-      onEmit(twitchClient, "message"),
-      [null, {}, null, null]
-    );
+    const twitchEvent = useStream(twitchClient);
 
-    console.log(`${tags["display-name"]}: ${message}`);
-    console.log(channel, tags, message, self);
+    console.log(twitchEvent);
   }
 
   return (
     <Canvas className={classes.canvas}>
       <ambientLight intensity={1.0} />
-      <TransformControls mode="translate" />
       <OrbitControls makeDefault />
       <Suspense fallback={null}>
         <Model />

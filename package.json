@@ -31,11 +31,11 @@
     "@effection/react": "2.1.4",
     "@react-three/drei": "^9.7.1",
     "@react-three/fiber": "^8.0.13",
+    "comfy.js": "^1.1.15",
     "effection": "^2.0.4",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
-    "three": "^0.140.0",
-    "tmi.js": "^1.8.5"
+    "three": "^0.140.0"
   },
   "devDependencies": {
     "events": "^3.3.0",
