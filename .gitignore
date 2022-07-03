@@ -105,3 +105,4 @@ dist
 
 .parcel-cache
 src/assets/random
+constants*
