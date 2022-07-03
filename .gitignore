@@ -104,5 +104,10 @@ dist
 .tern-port
 
 .parcel-cache
-src/assets/random
+
+# use for envs for example
 constants*
+
+# examples that we only want to keep locally
+src/assets/random
+src/assets/gltf/triceratops
