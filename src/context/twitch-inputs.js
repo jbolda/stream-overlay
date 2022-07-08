@@ -34,8 +34,12 @@ export const WithTwitch = ({ children }) => {
       let channelName = params.get("channel") || "jacobbolda";
       let password = params.get("password");
       if (!password) {
-        const { constants } = yield import("../../constants");
-        password = constants.password;
+        try {
+          const { constants } = yield import("../../constants");
+          password = constants.password;
+        } catch (error) {
+          // no-op, we tried...
+        }
       }
 
       // https://twitchapps.com/tmi/ or
