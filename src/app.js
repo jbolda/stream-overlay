@@ -4,11 +4,11 @@ import { useOperation } from "@effection/react";
 import { Canvas } from "@react-three/fiber";
 // import { Physics } from "@react-three/cannon";
 
-import { Frame } from "./frame.js";
-import { TextLayer } from "./text-layer.js";
+// import { Frame } from "./frame.js";
+import { TextLayer } from "./alerts/text-layer.js";
 
 import "./global.css";
-import * as classes from "./text-layer.module.css";
+import * as classes from "./canvas.module.css";
 
 export function App() {
   const twitchStream = useTwitch();
@@ -47,28 +47,33 @@ export function App() {
     : "";
 
   return (
-    <div style={{ height: 1080, width: 1920 }}>
-      <Canvas
-        className={classes.canvas}
-        camera={{ fov: 90, position: [0, 0, 5] }}
-      >
-        <Suspense fallback={null}>
-          <ambientLight intensity={0.2} />
-          <directionalLight />
-          <TextLayer {...{ textMessage, setTwitch: setTwitchCommand }} />
-          <TextLayer
-            {...{
-              textMessage: rewardMessage,
-              setTwitch: setTwitchRedemption,
-            }}
-          />
-          {/*
-          <Physics>
+    <>
+      <div className={classes.wrapper}>
+        <Canvas
+          className={classes.canvas}
+          camera={{ fov: 90, position: [0, 0, 5] }}
+        >
+          <Suspense fallback={null}>
+            <ambientLight intensity={0.2} />
+            <directionalLight />
+            <TextLayer {...{ textMessage, setTwitch: setTwitchCommand }} />
+            <TextLayer
+              {...{
+                textMessage: rewardMessage,
+                setTwitch: setTwitchRedemption,
+              }}
+            />
+          </Suspense>
+        </Canvas>
+      </div>
            <Frame />
           </Physics>
           */}
         </Suspense>
       </Canvas>
     </div>
+    </>
+  );
+}
   );
 }
