@@ -10,7 +10,9 @@ export default function Model({ position = [0, 0, 0], ...props }) {
   const group = useRef();
   const [ref] = useBox(() => ({ mass: 1, position }));
 
-  const { nodes, materials } = useGLTF("assets/gltf/structure/w-flange.gltf");
+  const { nodes, materials } = useGLTF(
+    "../../assets/gltf/structure/w-flange.gltf"
+  );
   return (
     <group ref={group} {...props} dispose={null}>
       <mesh
@@ -22,4 +24,4 @@ export default function Model({ position = [0, 0, 0], ...props }) {
   );
 }
 
-useGLTF.preload("assets/gltf/structure/w-flange.gltf");
+useGLTF.preload("../../assets/gltf/structure/w-flange.gltf");

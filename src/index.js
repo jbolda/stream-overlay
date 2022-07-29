@@ -1,6 +1,7 @@
 import { main } from "effection";
 import { EffectionContext } from "@effection/react";
 import ReactDOM from "react-dom";
+import { BrowserRouter } from "react-router-dom";
 import { App } from "./app.js";
 import { WithTwitch } from "./context/twitch-inputs.js";
 
@@ -11,7 +12,9 @@ main(function* (scope) {
   ReactDOM.render(
     <EffectionContext.Provider value={scope}>
       <WithTwitch>
-        <App />
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
       </WithTwitch>
     </EffectionContext.Provider>,
     app
