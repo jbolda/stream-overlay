@@ -1,4 +1,4 @@
-import React, { Suspense, createContext, useContext } from "react";
+import React, { createContext, useContext } from "react";
 import comfyjs from "comfy.js";
 import { ensure, createChannel } from "effection";
 import { useResource } from "./use-resource";
@@ -33,11 +33,11 @@ export const WithTwitch = ({ children }) => {
       let params = new URL(document.location).searchParams;
       let channelName = params.get("channel") || "jacobbolda";
       let password = params.get("password");
-      // if (!password && window) {
-      //   const { constants } = yield import("../../constants.js");
-      //   password = constants.password;
-      // }
+      if (!password) {
+        password = process.env.TWITCH_PASSWORD;
+      }
 
+      // https://github.com/instafluff/ComfyJS#channel-point-reward-redemptions
       // https://twitchapps.com/tmi/ or
       // https://twitchapps.com/tokengen/ for additional scopes
       // https://dev.twitch.tv/docs/authentication/register-app
