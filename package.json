@@ -3,15 +3,18 @@
   "version": "0.0.0",
   "description": "",
   "source": "src/index.html",
-  "browserlist": "Chrome >= 95",
+  "browserslist": [
+    "Chrome >= 95"
+  ],
   "staticFiles": {
     "staticPath": "src/assets",
     "staticOutPath": "assets"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "parcel ./src/index.html",
-    "build": "parcel build ./src/index.html"
+    "start": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "repository": {
     "type": "git",
@@ -28,29 +31,27 @@
     "npm": "8.13.2"
   },
   "dependencies": {
-    "@effection/react": "2.1.4",
+    "@effection/react": "2.2.0",
     "@react-spring/three": "^9.5.2",
-    "@react-three/cannon": "^6.3.0",
-    "@react-three/drei": "^9.19.6",
-    "@react-three/fiber": "^8.3.0",
-    "@react-three/rapier": "^0.6.2",
-    "comfy.js": "^1.1.16",
+    "@react-three/drei": "^9.22.7",
+    "@react-three/fiber": "^8.3.1",
+    "@react-three/rapier": "^0.6.5",
     "effection": "^2.0.4",
-    "react": "^18.1.0",
-    "react-dom": "^18.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-router-dom": "^6.3.0",
-    "three": "^0.139.0"
+    "three": "^0.139.2"
   },
   "devDependencies": {
-    "buffer": "^6.0.3",
-    "events": "^3.3.0",
-    "parcel": "^2.7.0",
-    "parcel-reporter-static-files-copy": "^1.4.0",
-    "process": "^0.11.10"
+    "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
+    "@vitejs/plugin-react": "^2.0.1",
+    "events": "3.3.0",
+    "rollup-plugin-polyfill-node": "^0.10.2",
+    "vite": "^3.0.8"
   },
   "overrides": {
     "@effection/react": {
-      "react": ">=18.1.0"
+      "react": ">=18.2.0"
     }
   }
 }

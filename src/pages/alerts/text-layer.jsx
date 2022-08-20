@@ -1,23 +1,34 @@
-import React from "react";
-
+import React, { useState, useEffect } from "react";
 import { useTransition, animated } from "@react-spring/three";
 import { Text3D, Float, useMatcapTexture } from "@react-three/drei";
-// import { Physics, useBox } from "@react-three/cannon";
 
-export const TextLayer = ({ textMessage, setTwitch }) => {
-  // const [meshRef] = useBox(() => ({ mass: 1 }));
-
-  const transition = useTransition(textMessage, {
+export const TextLayer = ({ channelAlert }) => {
+  // const [text, setText] = useState("");
+  // const queue = [];
+  const transition = useTransition(channelAlert, {
     from: { scale: 0, wait: 0 },
     enter: (item) => async (next, cancel) => {
       await next({ scale: 1 });
       await next({ wait: 1 });
+      await next({ scale: 0 });
     },
+    // update: (item) => async (next, cancel) => {
+    //   await next({ scale: 1 });
+    //   await next({ wait: true });
+    //   await next({ scale: 0 });
+    // },
     leave: { scale: 0, wait: 0 },
     config: (item, index, phase) => (key) => {
-      return phase === "enter" && key === "wait" ? { duration: 3000 } : {};
+      console.dir({ item, index, phase, key });
+      console.log(
+        phase === "enter" && key === "wait"
+          ? { duration: item.timeout }
+          : { duration: 1000 }
+      );
+      return phase === "enter" && key === "wait"
+        ? { duration: item.timeout }
+        : { duration: 1000 };
     },
-    onRest: () => setTwitch({}),
   });
 
   // we could also look at using these: https://ambientcg.com/
@@ -29,8 +40,8 @@ export const TextLayer = ({ textMessage, setTwitch }) => {
 
   return (
     <Float floatIntensity={5} speed={2}>
-      {transition(({ scale }, message) => {
-        const wordsArray = message.split(" ");
+      {transition(({ scale }, alert) => {
+        const wordsArray = alert.message.split(" ");
         const numberOfWords = wordsArray.length + 1;
         const wordsPerLine = Math.floor(numberOfWords / 3);
         const formattedMessage = wordsArray.reduce(

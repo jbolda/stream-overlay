@@ -1,7 +1,6 @@
 import React, { createContext, useContext } from "react";
-import comfyjs from "comfy.js";
 import { ensure, createChannel } from "effection";
-import { useResource } from "./use-resource";
+import { useResource } from "@effection/react";
 
 export const TwitchContext = createContext(null);
 TwitchContext.displayName = "TwitchContext";
@@ -14,6 +13,8 @@ export const WithTwitch = ({ children }) => {
   let client = useResource({
     name: "TwitchClient",
     *init() {
+      // ugh... but the bundling of this is awful
+      const comfyjs = window["ComfyJS"];
       const channel = createChannel();
 
       // Comfyjs has an object of functions that is
@@ -25,7 +26,7 @@ export const WithTwitch = ({ children }) => {
       Object.keys(comfyjs).forEach((event) => {
         if (event.startsWith("on")) {
           comfyjs[event] = (...args) => {
-            channel.send({ event, args });
+            channel.send(buildEvent({ event, args }));
           };
         }
       });
@@ -34,7 +35,7 @@ export const WithTwitch = ({ children }) => {
       let channelName = params.get("channel") || "jacobbolda";
       let password = params.get("password");
       if (!password) {
-        password = process.env.TWITCH_PASSWORD;
+        password = import.meta.env.VITE_TWITCH_PASSWORD;
       }
 
       // https://github.com/instafluff/ComfyJS#channel-point-reward-redemptions
@@ -52,15 +53,17 @@ export const WithTwitch = ({ children }) => {
     },
   });
 
-  if (client.type === "pending") {
-    return <h1>loading...</h1>;
-  } else if (client.type === "rejected") {
+  if (!client || !client.type || client.type === "rejected") {
     return (
       <React.Fragment>
         <h1>error.....</h1>
-        <pre>{client.error}</pre>
+        <pre>
+          {client && client.error ? JSON.stringify(client.error, null, 2) : ""}
+        </pre>
       </React.Fragment>
     );
+  } else if (client.type === "pending") {
+    return <h1>loading...</h1>;
   } else {
     return (
       <TwitchContext.Provider value={client.value}>
@@ -68,4 +71,30 @@ export const WithTwitch = ({ children }) => {
       </TwitchContext.Provider>
     );
   }
+};
+
+const buildEvent = ({ event, args }) => {
+  let timeout = 0;
+
+  let message = "";
+  switch (event) {
+    case "onCommand":
+      message = args[2];
+      timeout = 3000;
+      break;
+    case "onChat":
+      message = `${args?.[1]}`;
+      timeout = 3000;
+      break;
+    case "onReward":
+      message = `${args?.[0]} redeemed ${args?.[1]}`;
+      timeout = 3000;
+      break;
+    case "onRaid":
+      message = `${args?.[0]} raided with ${args?.[1]} viewers`;
+      timeout = 3000;
+      break;
+  }
+
+  return { event, args, timeout, message };
 };

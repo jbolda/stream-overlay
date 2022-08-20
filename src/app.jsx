@@ -1,7 +1,7 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-import { AlertCanvas } from "./pages/alerts/index.js";
-import { ModelCanvas } from "./pages/models/index.js";
+const AlertCanvas = React.lazy(() => import("./pages/alerts/index.jsx"));
+const ModelCanvas = React.lazy(() => import("./pages/models/index.jsx"));
 
 import "./global.css";
 import * as classes from "./canvas.module.css";
@@ -10,9 +10,9 @@ export function App() {
   return (
     <Routes>
       <Route
-        path="/"
+        index
         element={
-          <>
+          <React.Suspense fallback={<>...</>}>
             <div className={classes.wrapper}>
               <ModelCanvas />
             </div>
@@ -20,23 +20,27 @@ export function App() {
             <div className={classes.wrapper}>
               <AlertCanvas />
             </div>
-          </>
+          </React.Suspense>
         }
       />
       <Route
         path="alerts"
         element={
-          <div className={classes.wrapper}>
-            <AlertCanvas />
-          </div>
+          <React.Suspense fallback={<>...</>}>
+            <div className={classes.wrapper}>
+              <AlertCanvas />
+            </div>
+          </React.Suspense>
         }
       />
       <Route
         path="models"
         element={
-          <div className={classes.wrapper}>
-            <ModelCanvas />
-          </div>
+          <React.Suspense fallback={<>...</>}>
+            <div className={classes.wrapper}>
+              <ModelCanvas />
+            </div>
+          </React.Suspense>
         }
       />
     </Routes>

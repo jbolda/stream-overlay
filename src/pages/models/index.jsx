@@ -1,52 +1,55 @@
 import React, { Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Physics, RigidBody, Debug } from "@react-three/rapier";
-import { OrbitControls, Plane, RoundedBox } from "@react-three/drei";
+import { Plane } from "@react-three/drei";
 
-import WFlange from "./wflange.js";
+import WFlange from "./wflange.jsx";
 
 import * as classes from "../../canvas.module.css";
 
-export function ModelCanvas() {
+// position args an array of [x, y, z]
+// where y is vertical, x is towards our camera
+// and z is side to side relative to our camera
+
+export default function ModelCanvas() {
   return (
     <Canvas
       className={classes.canvas}
-      camera={{ fov: 90, position: [0, 0, 25] }}
+      camera={{ fov: 90, position: [15, 9, 0] }}
+      onCreated={(three) => {
+        three.camera.lookAt(0, 12, 0);
+      }}
     >
       <Suspense fallback={null}>
-        <ambientLight intensity={0.3} />
-        <OrbitControls makeDefault />
+        <ambientLight intensity={1.0} />
         <Physics colliders="hull">
           {/* <Debug /> */}
-          {/* <Frame /> */}
+          <RigidBody type="fixed">
+            <Plane
+              args={[1, 100]}
+              position={[0, 0, 0]}
+              rotation={[1.57, 0, 0]}
+            />
+          </RigidBody>
           <RigidBody
+            position={[0, 5, 0]}
             onCollisionEnter={({ manifold }) => {
               console.log(
                 "Collision at world position ",
                 manifold.solverContactPoint(0)
               );
             }}
-            type="fixed"
           >
-            {/* <Plane
-              args={[30, 30]}
-              position={[0, -100, 0]}
-              rotation={[90, 0, 0]}
-            /> */}
-            <RoundedBox
-              position={[0, -30, 0]}
-              args={[10, 10, 10]}
-              radius={0.05}
-              smoothness={4}
-            >
-              <meshPhongMaterial color="#f3f3f3" wireframe />
-            </RoundedBox>
+            <WFlange />
           </RigidBody>
-          <RigidBody>
-            <WFlange position={[0, 0, 0]} />
+          <RigidBody position={[0, 40, 0]}>
+            <WFlange />
           </RigidBody>
-          <RigidBody>
-            <WFlange position={[5, 5, 5]} />
+          <RigidBody position={[0, 40, 3]}>
+            <WFlange />
+          </RigidBody>
+          <RigidBody position={[0, 40, -3]}>
+            <WFlange />
           </RigidBody>
           {/* <RigidBody>
             <WFlange position={[100, 5, 20]} />

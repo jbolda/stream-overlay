@@ -103,8 +103,7 @@ dist
 # TernJS port file
 .tern-port
 
-.parcel-cache
-.env
+.env*
 
 # examples that we only want to keep locally
 src/assets/random

@@ -1,23 +1,23 @@
 import { main } from "effection";
 import { EffectionContext } from "@effection/react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
-import { App } from "./app.js";
-import { WithTwitch } from "./context/twitch-inputs.js";
+import { App } from "./app.jsx";
+import { WithTwitch } from "./context/twitch-inputs.jsx";
 
 EffectionContext.displayName = "EffectionScope";
 
 main(function* (scope) {
-  const app = document.getElementById("app");
-  ReactDOM.render(
+  const container = document.getElementById("root");
+  const root = createRoot(container);
+  root.render(
     <EffectionContext.Provider value={scope}>
       <WithTwitch>
         <BrowserRouter>
           <App />
         </BrowserRouter>
       </WithTwitch>
-    </EffectionContext.Provider>,
-    app
+    </EffectionContext.Provider>
   );
 
   yield;
