@@ -3,8 +3,6 @@ import { useTransition, animated } from "@react-spring/three";
 import { Text3D, Float, useMatcapTexture } from "@react-three/drei";
 
 export const TextLayer = ({ channelAlert }) => {
-  // const [text, setText] = useState("");
-  // const queue = [];
   const transition = useTransition(channelAlert, {
     from: { scale: 0, wait: 0 },
     enter: (item) => async (next, cancel) => {
@@ -12,19 +10,8 @@ export const TextLayer = ({ channelAlert }) => {
       await next({ wait: 1 });
       await next({ scale: 0 });
     },
-    // update: (item) => async (next, cancel) => {
-    //   await next({ scale: 1 });
-    //   await next({ wait: true });
-    //   await next({ scale: 0 });
-    // },
     leave: { scale: 0, wait: 0 },
     config: (item, index, phase) => (key) => {
-      console.dir({ item, index, phase, key });
-      console.log(
-        phase === "enter" && key === "wait"
-          ? { duration: item.timeout }
-          : { duration: 1000 }
-      );
       return phase === "enter" && key === "wait"
         ? { duration: item.timeout }
         : { duration: 1000 };
