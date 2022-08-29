@@ -17,86 +17,8 @@ import * as classes from "../../canvas.module.css";
 // position args an array of [x, y, z]
 // where y is vertical, x is towards our camera
 // and z is side to side relative to our camera
-const COUNT = 1000;
+const COUNT = 25;
 export default function ModelCanvas() {
-  const {
-    nodes: { Suzanne },
-  } = useSuzanne();
-
-  const onCollisionEnter =
-    (key) =>
-    ({ manifold }) => {
-      // if (manifold.solverContactPoint(0).y <= -30) {
-      // console.log(`collision(index: ${key})`, manifold.solverContactPoint(0));
-      setElements((state) => {
-        state.delete(key);
-        console.log(`removed(index: ${key})`, state);
-        return state;
-      });
-      // }
-    };
-  const [elements, setElements] = useState(() => {
-    const elementMap = new Map();
-    const initial = Array(7)
-      .fill(null)
-      .flatMap((_, index) => [
-        {
-          key: index,
-          element: (
-            <RigidBody
-              key={index}
-              position={[0, 55, index * 3]}
-              onCollisionEnter={onCollisionEnter(index)}
-            >
-              <WFlange />
-            </RigidBody>
-          ),
-        },
-        {
-          key: index + 100,
-          element: (
-            <RigidBody
-              key={index + 100}
-              position={[0, 35, index * 3]}
-              onCollisionEnter={onCollisionEnter(index + 100)}
-            >
-              <WFlange />
-            </RigidBody>
-          ),
-        },
-      ]);
-
-    initial.forEach((element) => elementMap.set(element.key, element.element));
-
-    return elementMap;
-  });
-
-  // const handleClickInstance = (evt) => {
-  //   if (api.current) {
-  //     api.current.at(evt.instanceId).applyTorqueImpulse({ x: 0, y: 100, z: 0 });
-  //   }
-  // };
-
-  // We can set the initial positions, and rotations, and scales, of
-  // the instances by providing an array equal to the instance count
-  const positions = Array.from({ length: COUNT }, (_, index) => [
-    0,
-    40,
-    index * 3,
-  ]);
-
-  // const rotations = Array.from({ length: COUNT }, (_, index) => [
-  //   Math.random(),
-  //   Math.random(),
-  //   Math.random(),
-  // ]);
-
-  // const scales = Array.from({ length: COUNT }, (_, index) => [
-  //   Math.random(),
-  //   Math.random(),
-  //   Math.random(),
-  // ]);
-
   return (
     <Canvas
       className={classes.canvas}
@@ -118,22 +40,7 @@ export default function ModelCanvas() {
               rotation={[1.57, 0, 0]}
             />
           </RigidBody>
-          {/* {[...elements.entries()].map(([key, value]) => value)} */}
-          <InstancedRigidBodies
-            positions={positions}
-            // rotations={rotations}
-            // scales={scales}
-            colliders="hull"
-          >
-            <instancedMesh
-              castShadow
-              args={[undefined, undefined, COUNT]}
-              // onClick={handleClickInstance}
-            >
-              {/* <WFlange /> */}
-              {/* <meshPhysicalMaterial color={"yellow"} /> */}
-            </instancedMesh>
-          </InstancedRigidBodies>
+          <WFlange count={COUNT} />
         </Physics>
       </Suspense>
     </Canvas>
