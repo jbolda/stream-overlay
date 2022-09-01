@@ -1,14 +1,8 @@
 import React, { Suspense, useState } from "react";
+import { useTwitch } from "../../context/twitch-inputs";
 import { Canvas } from "@react-three/fiber";
-import {
-  Physics,
-  RigidBody,
-  Debug,
-  InstancedRigidBodies,
-  CuboidCollider,
-} from "@react-three/rapier";
+import { Physics, RigidBody, Debug } from "@react-three/rapier";
 import { Plane } from "@react-three/drei";
-import { useSuzanne } from "../models/all-shapes.jsx";
 
 import WFlange from "./wflange.jsx";
 
@@ -19,6 +13,8 @@ import * as classes from "../../canvas.module.css";
 // and z is side to side relative to our camera
 const COUNT = 25;
 export default function ModelCanvas() {
+  const twitchStream = useTwitch();
+
   return (
     <Canvas
       className={classes.canvas}
@@ -40,7 +36,7 @@ export default function ModelCanvas() {
               rotation={[1.57, 0, 0]}
             />
           </RigidBody>
-          <WFlange count={COUNT} />
+          <WFlange count={COUNT} twitchStream={twitchStream} />
         </Physics>
       </Suspense>
     </Canvas>

@@ -1,6 +1,5 @@
 import React, { Suspense, useState } from "react";
 import { useTwitch } from "../../context/twitch-inputs";
-import { spawn, sleep } from "effection";
 import { useOperation } from "@effection/react";
 import { Canvas } from "@react-three/fiber";
 import { TextLayer } from "./text-layer.jsx";
@@ -9,7 +8,17 @@ import * as classes from "../../canvas.module.css";
 
 export default function AlertCanvas() {
   const twitchStream = useTwitch();
-  const channelAlert = useAlert(twitchStream);
+  const channelAlert = useAlert(
+    twitchStream.filter(
+      (alert) =>
+        !(
+          alert?.event === "onReward" &&
+          alert?.args?.[1] &&
+          typeof alert.args[1] === "string" &&
+          alert.args[1].startsWith("Drop")
+        )
+    )
+  );
 
   return (
     <Canvas
