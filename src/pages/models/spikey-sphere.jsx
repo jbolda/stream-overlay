@@ -6,7 +6,7 @@ import { useOperation } from "@effection/react";
 import { useGLTF } from "@react-three/drei";
 import { InstancedRigidBodies } from "@react-three/rapier";
 
-import star from "../../assets/gltf/items/star-transformed.glb";
+import sphere from "../../assets/gltf/items/spikey-sphere-transformed.glb";
 
 export default function Model({
   position = [0, 0, 0],
@@ -19,7 +19,7 @@ export default function Model({
   const [drop, toggleDrop] = useState(true);
   const channelAlert = useAlert(
     twitchStream.filter(
-      (alert) => alert.event === "onReward" && alert.args[1] === "Drop Star"
+      (alert) => alert.event === "onReward" && alert.args[1] === "Drop Torus"
     ),
     toggleDrop
   );
@@ -49,21 +49,21 @@ export default function Model({
     }
   }, [drop]);
 
-  const { nodes, materials } = useGLTF(star);
+  const { nodes, materials } = useGLTF(sphere);
   return (
     <group {...props} dispose={null}>
       <InstancedRigidBodies positions={positions} colliders="hull" ref={api}>
         <instancedMesh
           castShadow
           receiveShadow
-          args={[nodes.Cube.geometry, materials.Material, count]}
+          args={[nodes.Cube.geometry, materials["Material 1"], count]}
         />
       </InstancedRigidBodies>
     </group>
   );
 }
 
-useGLTF.preload(star);
+useGLTF.preload(sphere);
 
 export function useAlert(stream, toggleDrop) {
   let [state, setState] = useState({ message: "" });
