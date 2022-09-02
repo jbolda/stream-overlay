@@ -18,17 +18,13 @@ export const TextLayer = ({ channelAlert }) => {
     },
   });
 
-  // we could also look at using these: https://ambientcg.com/
-  const [matcap, url] = useMatcapTexture(
-    "617586_23304C_1B1E30_4988CF"
-    // 0, // index of the matcap texture https://github.com/emmelleppi/matcaps/blob/master/matcap-list.json
-    // 1024 // size of the texture ( 64, 128, 256, 512, 1024 )
-  );
+  const [matcap] = useDynamicTexture(channelAlert.message);
 
   return (
     <Float floatIntensity={5} speed={2}>
       {transition(({ scale }, alert) => {
         const wordsArray = alert.message.split(" ");
+        if (wordsArray[0].startsWith("index")) wordsArray.shift();
         const numberOfWords = wordsArray.length + 1;
         const wordsPerLine = Math.floor(numberOfWords / 3);
         const formattedMessage = wordsArray.reduce(
@@ -70,3 +66,27 @@ export const TextLayer = ({ channelAlert }) => {
     </Float>
   );
 };
+
+export function useDynamicTexture(message) {
+  let matDefault = "617586_23304C_1B1E30_4988CF";
+  let matcap;
+
+  let mat = matDefault;
+  if (message.startsWith("index:")) {
+    let matInput = message?.split(" ")[0];
+    console.log(matInput);
+    let [indexArg, materialArg] = matInput.split(":");
+    if (materialArg) mat = parseInt(materialArg.trim()); // ?? materialArg;
+    console.log({ mat });
+  }
+
+  // we could also look at using these: https://ambientcg.com/
+  const [matcapLoaded] = useMatcapTexture(
+    // "617586_23304C_1B1E30_4988CF"
+    mat, // index of the matcap texture https://github.com/emmelleppi/matcaps/blob/master/matcap-list.json
+    1024 // size of the texture ( 64, 128, 256, 512, 1024 )
+  );
+  matcap = matcapLoaded;
+
+  return [matcap];
+}
