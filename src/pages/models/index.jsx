@@ -5,6 +5,10 @@ import { Physics, RigidBody, Debug } from "@react-three/rapier";
 import { Plane } from "@react-three/drei";
 
 import WFlange from "./wflange.jsx";
+// import Cup from "./cup.jsx";
+import Star from "./star.jsx";
+import BumpTorus from "./bump-torus.jsx";
+import SpikeySphere from "./spikey-sphere.jsx";
 
 import * as classes from "../../canvas.module.css";
 
@@ -37,6 +41,10 @@ export default function ModelCanvas() {
             />
           </RigidBody>
           <WFlange count={COUNT} twitchStream={twitchStream} />
+          {/* <Cup count={COUNT} twitchStream={twitchStream} /> */}
+          <Star count={COUNT} twitchStream={twitchStream} />
+          <BumpTorus count={COUNT} twitchStream={twitchStream} />
+          <SpikeySphere count={COUNT} twitchStream={twitchStream} />
         </Physics>
       </Suspense>
     </Canvas>
