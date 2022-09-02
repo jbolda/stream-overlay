@@ -19,7 +19,7 @@ export default function Model({
   const [drop, toggleDrop] = useState(true);
   const channelAlert = useAlert(
     twitchStream.filter(
-      (alert) => alert.event === "onReward" && alert.args[1] === "Drop Star"
+      (alert) => alert.event === "onReward" && alert.args[1] === "Drop Stars"
     ),
     toggleDrop
   );
