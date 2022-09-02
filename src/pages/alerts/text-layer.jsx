@@ -3,8 +3,6 @@ import { useTransition, animated } from "@react-spring/three";
 import { Text3D, Float, useMatcapTexture } from "@react-three/drei";
 
 export const TextLayer = ({ channelAlert }) => {
-  // const [text, setText] = useState("");
-  // const queue = [];
   const transition = useTransition(channelAlert, {
     from: { scale: 0, wait: 0 },
     enter: (item) => async (next, cancel) => {
@@ -12,36 +10,21 @@ export const TextLayer = ({ channelAlert }) => {
       await next({ wait: 1 });
       await next({ scale: 0 });
     },
-    // update: (item) => async (next, cancel) => {
-    //   await next({ scale: 1 });
-    //   await next({ wait: true });
-    //   await next({ scale: 0 });
-    // },
     leave: { scale: 0, wait: 0 },
     config: (item, index, phase) => (key) => {
-      console.dir({ item, index, phase, key });
-      console.log(
-        phase === "enter" && key === "wait"
-          ? { duration: item.timeout }
-          : { duration: 1000 }
-      );
       return phase === "enter" && key === "wait"
         ? { duration: item.timeout }
         : { duration: 1000 };
     },
   });
 
-  // we could also look at using these: https://ambientcg.com/
-  const [matcap, url] = useMatcapTexture(
-    "617586_23304C_1B1E30_4988CF"
-    // 0, // index of the matcap texture https://github.com/emmelleppi/matcaps/blob/master/matcap-list.json
-    // 1024 // size of the texture ( 64, 128, 256, 512, 1024 )
-  );
+  const [matcap] = useDynamicTexture(channelAlert.message);
 
   return (
     <Float floatIntensity={5} speed={2}>
       {transition(({ scale }, alert) => {
         const wordsArray = alert.message.split(" ");
+        if (wordsArray[0].startsWith("index")) wordsArray.shift();
         const numberOfWords = wordsArray.length + 1;
         const wordsPerLine = Math.floor(numberOfWords / 3);
         const formattedMessage = wordsArray.reduce(
@@ -83,3 +66,27 @@ export const TextLayer = ({ channelAlert }) => {
     </Float>
   );
 };
+
+export function useDynamicTexture(message) {
+  let matDefault = "617586_23304C_1B1E30_4988CF";
+  let matcap;
+
+  let mat = matDefault;
+  if (message.startsWith("index:")) {
+    let matInput = message?.split(" ")[0];
+    console.log(matInput);
+    let [indexArg, materialArg] = matInput.split(":");
+    if (materialArg) mat = parseInt(materialArg.trim()); // ?? materialArg;
+    console.log({ mat });
+  }
+
+  // we could also look at using these: https://ambientcg.com/
+  const [matcapLoaded] = useMatcapTexture(
+    // "617586_23304C_1B1E30_4988CF"
+    mat, // index of the matcap texture https://github.com/emmelleppi/matcaps/blob/master/matcap-list.json
+    1024 // size of the texture ( 64, 128, 256, 512, 1024 )
+  );
+  matcap = matcapLoaded;
+
+  return [matcap];
+}
