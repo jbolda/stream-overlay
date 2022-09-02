@@ -82,10 +82,10 @@ const buildEvent = ({ event, args }) => {
       message = args[2];
       timeout = 3000;
       break;
-    case "onChat":
-      message = `${args?.[1]}`;
-      timeout = 3000;
-      break;
+    // case "onChat":
+    //   message = `${args?.[1]}`;
+    //   timeout = 3000;
+    //   break;
     case "onReward":
       message = `${args?.[0]} redeemed ${args?.[1]}`;
       timeout = 3000;
