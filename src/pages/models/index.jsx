@@ -63,7 +63,7 @@ export default function ModelCanvas() {
           <meshStandardMaterial color="red" />
         </editable.mesh> */}
         <Physics colliders="hull" gravity={[0, -9.81, 0]}>
-          <Debug />
+          {/* <Debug /> */}
           <RigidBody type="fixed">
             <Plane
               args={[0.2, 100]}
