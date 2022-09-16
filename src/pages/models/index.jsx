@@ -9,6 +9,7 @@ import Cup from "./cup.jsx";
 import Star from "./star.jsx";
 import BumpTorus from "./bump-torus.jsx";
 import SpikeySphere from "./spikey-sphere.jsx";
+import Chair from "./chair.jsx";
 
 import * as classes from "../../canvas.module.css";
 
@@ -45,6 +46,7 @@ export default function ModelCanvas() {
           <Star count={COUNT} twitchStream={twitchStream} />
           <BumpTorus count={COUNT} twitchStream={twitchStream} />
           <SpikeySphere count={COUNT} twitchStream={twitchStream} />
+          <Chair count={COUNT} twitchStream={twitchStream} />
         </Physics>
       </Suspense>
     </Canvas>
