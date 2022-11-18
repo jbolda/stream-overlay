@@ -20,7 +20,8 @@ export default function Model({
   const channelAlert = useAlert(
     twitchStream.filter(
       (alert) =>
-        alert.event === "onReward" && alert.args[1] === "Drop Spikey Spheres"
+        alert.event.type === "RewardRedemption" &&
+        alert.data.title === "Drop Spikey Spheres"
     ),
     toggleDrop
   );

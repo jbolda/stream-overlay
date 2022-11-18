@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import { useTwitch } from "../../context/twitch-inputs";
+import { useStreamEvents } from "../../context/stream-events.jsx";
 import { Canvas } from "@react-three/fiber";
 import { Physics, RigidBody, Debug } from "@react-three/rapier";
 import { PerspectiveCamera, Plane } from "@react-three/drei";
@@ -26,7 +26,7 @@ import * as classes from "../../canvas.module.css";
 // and z is side to side relative to our camera
 const COUNT = 25;
 export default function ModelCanvas() {
-  const twitchStream = useTwitch();
+  const twitchStream = useStreamEvents();
 
   return (
     <Canvas className={classes.canvas}>

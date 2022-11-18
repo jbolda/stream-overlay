@@ -3,7 +3,7 @@ import { EffectionContext } from "@effection/react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { App } from "./app.jsx";
-import { WithTwitch } from "./context/twitch-inputs.jsx";
+import { WithStreamEvents } from "./context/stream-events.jsx";
 
 EffectionContext.displayName = "EffectionScope";
 
@@ -12,11 +12,11 @@ main(function* (scope) {
   const root = createRoot(container);
   root.render(
     <EffectionContext.Provider value={scope}>
-      <WithTwitch>
+      <WithStreamEvents>
         <BrowserRouter>
           <App />
         </BrowserRouter>
-      </WithTwitch>
+      </WithStreamEvents>
     </EffectionContext.Provider>
   );
 

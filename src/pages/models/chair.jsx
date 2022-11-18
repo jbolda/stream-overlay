@@ -19,7 +19,9 @@ export default function Model({
   const [drop, toggleDrop] = useState(true);
   const channelAlert = useAlert(
     twitchStream.filter(
-      (alert) => alert.event === "onReward" && alert.args[1] === "Drop Chairs"
+      (alert) =>
+        alert.event.type === "RewardRedemption" &&
+        alert.data.title === "Drop Chairs"
     ),
     toggleDrop
   );
