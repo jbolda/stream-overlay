@@ -18,7 +18,7 @@ export const TextLayer = ({ channelAlert }) => {
     },
   });
 
-  const [matcap] = useDynamicTexture(channelAlert.message);
+  const [matcap] = useDynamicTexture(channelAlert);
 
   return (
     <Float floatIntensity={5} speed={2}>
@@ -67,13 +67,13 @@ export const TextLayer = ({ channelAlert }) => {
   );
 };
 
-export function useDynamicTexture(message) {
+export function useDynamicTexture(alert) {
   let matDefault = "617586_23304C_1B1E30_4988CF";
   let matcap;
 
   let mat = matDefault;
-  if (message.startsWith("index:")) {
-    let matInput = message?.split(" ")[0];
+  if (alert.message?.startsWith("index:")) {
+    let matInput = alert.message?.split(" ")[0];
     console.log(matInput);
     let [indexArg, materialArg] = matInput.split(":");
     if (materialArg) mat = parseInt(materialArg.trim()); // ?? materialArg;

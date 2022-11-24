@@ -1,5 +1,5 @@
 import React, { Suspense, useState } from "react";
-import { useTwitch } from "../../context/twitch-inputs";
+import { useStreamEvents } from "../../context/stream-events.jsx";
 import { useOperation } from "@effection/react";
 import { Canvas } from "@react-three/fiber";
 import { TextLayer } from "./text-layer.jsx";
@@ -7,16 +7,12 @@ import { TextLayer } from "./text-layer.jsx";
 import * as classes from "../../canvas.module.css";
 
 export default function AlertCanvas() {
-  const twitchStream = useTwitch();
+  const twitchStream = useStreamEvents();
   const channelAlert = useAlert(
     twitchStream.filter(
       (alert) =>
-        !(
-          alert?.event === "onReward" &&
-          alert?.args?.[1] &&
-          typeof alert.args[1] === "string" &&
-          alert.args[1].startsWith("Drop")
-        )
+        alert?.event?.type === "ChatMessage" &&
+        alert?.data?.message?.message?.startsWith("!3d ")
     )
   );
 
@@ -37,8 +33,11 @@ export default function AlertCanvas() {
 export function useAlert(stream) {
   let [state, setState] = useState({ message: "" });
   useOperation(
-    stream.forEach(function* (value) {
-      setState(value);
+    stream.forEach(function* (event) {
+      setState({
+        ...event.data.message,
+        message: event.data.message.message.slice(4),
+      });
     }),
     [stream]
   );
