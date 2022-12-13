@@ -7,13 +7,15 @@ import { TextLayer } from "./text-layer.jsx";
 import * as classes from "../../canvas.module.css";
 
 export default function AlertCanvas() {
-  const twitchStream = useStreamEvents();
+  const youtubeStream = useStreamEvents();
   const channelAlert = useAlert(
-    twitchStream.filter(
-      (alert) =>
-        alert?.event?.type === "ChatMessage" &&
-        alert?.data?.message?.message?.startsWith("!3d ")
-    )
+    youtubeStream.filter((alert) => {
+      return (
+        alert?.event?.source === "Command" &&
+        alert?.event?.type === "Message" &&
+        alert?.data?.command === "!3d"
+      );
+    })
   );
 
   return (
@@ -35,8 +37,7 @@ export function useAlert(stream) {
   useOperation(
     stream.forEach(function* (event) {
       setState({
-        ...event.data.message,
-        message: event.data.message.message.slice(4),
+        ...event.data,
       });
     }),
     [stream]
