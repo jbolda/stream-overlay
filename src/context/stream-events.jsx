@@ -83,6 +83,7 @@ export const WithStreamEvents = ({ children }) => {
         list: {
           command: ["Message"],
           youtube: ["Message", "MessageDeleted", "UserBanned"],
+          raw: ["Action"],
         },
         channel,
       });
@@ -109,30 +110,4 @@ export const WithStreamEvents = ({ children }) => {
       </StreamEventsContext.Provider>
     );
   }
-};
-
-const buildEvent = ({ event, args }) => {
-  let timeout = 0;
-
-  let message = "";
-  switch (event) {
-    case "onCommand":
-      message = args[2];
-      timeout = 3000;
-      break;
-    // case "onChat":
-    //   message = `${args?.[1]}`;
-    //   timeout = 3000;
-    //   break;
-    case "onReward":
-      message = `${args?.[0]} redeemed ${args?.[1]}`;
-      timeout = 3000;
-      break;
-    case "onRaid":
-      message = `${args?.[0]} raided with ${args?.[1]} viewers`;
-      timeout = 3000;
-      break;
-  }
-
-  return { event, args, timeout, message };
 };
