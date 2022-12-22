@@ -42,14 +42,12 @@ export function createSocket(port, host) {
       console.log(readyState.get(socket.readyState));
 
       return {
-        send: (message) => socket.send(message),
+        send: (message) => socket.send(JSON.stringify(message)),
         subscribe: ({ id, list, channel }) => {
           socket.send(
             JSON.stringify({
               request: "Subscribe",
-              events: {
-                Twitch: list,
-              },
+              events: list,
               id,
             })
           );
@@ -74,14 +72,19 @@ export const WithStreamEvents = ({ children }) => {
       const socket = yield createSocket(7890, "127.0.0.1");
       const channel = createChannel();
 
+      // const eventList = socket.send({
+      //   request: "GetEvents",
+      //   id: "1",
+      // });
+      // console.log(eventList);
+
       yield socket.subscribe({
         id: "0",
-        list: [
-          "Follow",
-          "ChatMessage",
-          "ChatMessageDeleted",
-          "RewardRedemption",
-        ],
+        list: {
+          command: ["Message"],
+          youtube: ["Message", "MessageDeleted", "UserBanned"],
+          raw: ["Action"],
+        },
         channel,
       });
 
@@ -107,30 +110,4 @@ export const WithStreamEvents = ({ children }) => {
       </StreamEventsContext.Provider>
     );
   }
-};
-
-const buildEvent = ({ event, args }) => {
-  let timeout = 0;
-
-  let message = "";
-  switch (event) {
-    case "onCommand":
-      message = args[2];
-      timeout = 3000;
-      break;
-    // case "onChat":
-    //   message = `${args?.[1]}`;
-    //   timeout = 3000;
-    //   break;
-    case "onReward":
-      message = `${args?.[0]} redeemed ${args?.[1]}`;
-      timeout = 3000;
-      break;
-    case "onRaid":
-      message = `${args?.[0]} raided with ${args?.[1]} viewers`;
-      timeout = 3000;
-      break;
-  }
-
-  return { event, args, timeout, message };
 };
