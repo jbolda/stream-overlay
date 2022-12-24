@@ -1,5 +1,6 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
+const Monitor = React.lazy(() => import("./pages/monitor/index.jsx"));
 const AlertCanvas = React.lazy(() => import("./pages/alerts/index.jsx"));
 const ModelCanvas = React.lazy(() => import("./pages/models/index.jsx"));
 const ChatCanvas = React.lazy(() => import("./pages/chat/index.jsx"));
@@ -21,6 +22,14 @@ export function App() {
             <div className={classes.wrapper}>
               <AlertCanvas />
             </div>
+          </React.Suspense>
+        }
+      />
+      <Route
+        path="monitor"
+        element={
+          <React.Suspense fallback={<>...</>}>
+            <Monitor />
           </React.Suspense>
         }
       />
