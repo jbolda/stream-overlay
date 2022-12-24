@@ -7,9 +7,9 @@ import { TextLayer } from "./text-layer.jsx";
 import * as classes from "../../canvas.module.css";
 
 export default function AlertCanvas() {
-  const youtubeStream = useStreamEvents();
+  const streamerBotEvents = useStreamEvents();
   const channelAlert = useAlert(
-    youtubeStream.filter((alert) => {
+    streamerBotEvents.channel.filter((alert) => {
       return (
         alert?.event?.source === "Command" &&
         alert?.event?.type === "Message" &&

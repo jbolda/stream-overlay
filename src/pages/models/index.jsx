@@ -26,7 +26,11 @@ import * as classes from "../../canvas.module.css";
 // and z is side to side relative to our camera
 const COUNT = 25;
 export default function ModelCanvas() {
-  const twitchStream = useStreamEvents();
+  const streamerBotEvents = useStreamEvents();
+  const dropCommand = streamerBotEvents.channel.filter(
+    (event) =>
+      event?.event?.source === "Command" && event?.data?.command === "!drop"
+  );
 
   return (
     <Canvas className={classes.canvas}>
@@ -71,12 +75,12 @@ export default function ModelCanvas() {
               rotation={[1.57, 0, 0]}
             />
           </RigidBody>
-          <WFlange count={COUNT} twitchStream={twitchStream} />
-          <Cup count={COUNT} twitchStream={twitchStream} />
-          <Star count={COUNT} twitchStream={twitchStream} />
-          <BumpTorus count={COUNT} twitchStream={twitchStream} />
-          <SpikeySphere count={COUNT} twitchStream={twitchStream} />
-          <Chair count={COUNT} twitchStream={twitchStream} />
+          <WFlange count={COUNT} dropCommand={dropCommand} />
+          <Cup count={COUNT} dropCommand={dropCommand} />
+          <Star count={COUNT} dropCommand={dropCommand} />
+          <BumpTorus count={COUNT} dropCommand={dropCommand} />
+          <SpikeySphere count={COUNT} dropCommand={dropCommand} />
+          <Chair count={COUNT} dropCommand={dropCommand} />
         </Physics>
       </Suspense>
       {/* </SheetProvider> */}

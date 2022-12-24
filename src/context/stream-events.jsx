@@ -72,15 +72,15 @@ export const WithStreamEvents = ({ children }) => {
       const socket = yield createSocket(7890, "127.0.0.1");
       const channel = createChannel();
 
-      // const eventList = socket.send({
-      //   request: "GetEvents",
-      //   id: "1",
-      // });
-      // console.log(eventList);
+      socket.send({
+        request: "GetEvents",
+        id: "1",
+      });
 
       yield socket.subscribe({
         id: "0",
         list: {
+          general: ["Custom"],
           command: ["Message"],
           youtube: ["Message", "MessageDeleted", "UserBanned"],
           raw: ["Action"],
@@ -88,7 +88,7 @@ export const WithStreamEvents = ({ children }) => {
         channel,
       });
 
-      return channel;
+      return { channel, client: socket };
     },
   });
 
