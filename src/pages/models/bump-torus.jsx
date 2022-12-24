@@ -5,23 +5,23 @@ import React, { useRef, useState, useEffect } from "react";
 import { useOperation } from "@effection/react";
 import { useGLTF } from "@react-three/drei";
 import { InstancedRigidBodies } from "@react-three/rapier";
+import { filterModels, useAlert } from "./helpers";
 
 import torus from "../../assets/gltf/items/bump-torus-transformed.glb";
 
 export default function Model({
   position = [0, 0, 0],
   count = 10,
-  twitchStream,
+  dropCommand,
   ...props
 }) {
   const group = useRef();
   const api = useRef();
   const [drop, toggleDrop] = useState(true);
-  const channelAlert = useAlert(
-    twitchStream.filter(
+  useAlert(
+    dropCommand.filter(
       (alert) =>
-        alert.event.type === "RewardRedemption" &&
-        alert.data.title === "Drop Bumpy Torus"
+        alert.data.message === "" || filterModels("torus", alert.data.message)
     ),
     toggleDrop
   );
@@ -66,16 +66,3 @@ export default function Model({
 }
 
 useGLTF.preload(torus);
-
-export function useAlert(stream, toggleDrop) {
-  let [state, setState] = useState({ message: "" });
-  useOperation(
-    stream.forEach(function* (value) {
-      console.log(value);
-      setState(value);
-      toggleDrop(true);
-    }),
-    [stream]
-  );
-  return state;
-}
