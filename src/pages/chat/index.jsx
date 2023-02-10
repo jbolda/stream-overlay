@@ -37,7 +37,7 @@ export default function ChatCanvas() {
   //       alert?.event?.type === "Action" &&
   //       alert?.data?.name === "Highlight"
   //   )
-  );
+  // );
 
   return (
     <Canvas
