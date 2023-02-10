@@ -19,13 +19,18 @@ export default function Monitor() {
   );
 
   const handleHighlight = (event, chatEvent) => {
+    const highlight = !chatEvent.isHighlighted
+      ? { isHighlighted: true, messageId: chatEvent.messageId }
+      : { isHighlighted: false, messageId: "none" };
+
     setEventList((currentState) =>
       currentState.map((eventState) => {
         if (eventState.messageId === chatEvent.messageId) {
-          return { ...eventState, isHighlighted: !chatEvent.isHighlighted };
+          eventState.isHighlighted = highlight.isHighlighted;
         } else {
-          return eventState;
+          eventState.isHighlighted = false;
         }
+        return eventState;
       })
     );
     streamerBotEvents.client.send({
@@ -35,7 +40,7 @@ export default function Monitor() {
         name: "Highlight",
       },
       args: {
-        messageId: chatEvent.messageId,
+        messageId: highlight.messageId,
       },
       id: "c8fa224d-3c4f-47a8-9dda-8c1a849c28b9",
     });
@@ -44,14 +49,15 @@ export default function Monitor() {
   return (
     <div>
       {chatEvents
-        .reverse()
-        .map((chatEvent, index) =>
+        .sort(
+          (chatEventA, chatEventB) =>
+            -chatEventA.timeStamp.localeCompare(chatEventB.timeStamp)
+        )
+        .map((chatEvent) =>
           chatEvent !== "" ? (
             <ChatBox
               key={chatEvent.timeStamp}
               chatEvent={chatEvent}
-              index={index}
-              allAlerts={chatEvents}
               handleHighlight={handleHighlight}
             />
           ) : null
@@ -60,7 +66,7 @@ export default function Monitor() {
   );
 }
 
-function ChatBox({ chatEvent, index, allAlerts, handleHighlight }) {
+function ChatBox({ chatEvent, handleHighlight }) {
   return (
     <div
       style={{
@@ -80,16 +86,24 @@ export function useAlert(stream, setState) {
   useOperation(
     stream.forEach(function* (event) {
       if (!event?.data?.arguments?.message)
-        event = defaultChatEvent({ timeStamp: Date.now() });
+        event = defaultChatEvent({
+          timeStamp: event.timeStamp,
+        });
       const eventData = {
         ...event.data.arguments,
+        physicsType: "kinematicPosition",
+        isHighlighted: false,
         timeStamp: event.timeStamp,
       };
       console.log(eventData);
-      setState((currentState) => [
-        ...(currentState.length > 15 ? currentState.slice(1) : currentState),
-        eventData,
-      ]);
+      setState((currentState) =>
+        (currentState.length > 15 ? [...currentState].slice(1) : currentState)
+          .map((chatEvent) => {
+            chatEvent.physicsType = "dynamic";
+            return chatEvent;
+          })
+          .concat([eventData])
+      );
     }),
     [stream]
   );
@@ -105,7 +119,7 @@ let defaultChatEvent = ({ timeStamp }) => ({
     id: "xxxxxxxxx",
     name: "Chat Event",
     arguments: {
-      messageId: "asdasdasd",
+      messageId: `messageId ${timeStamp}`,
       message: "boop",
       publishedAt: "2022-12-23T12:08:23.438531-06:00",
       userProfileUrl:
