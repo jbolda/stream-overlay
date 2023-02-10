@@ -22,7 +22,7 @@ import * as messageClasses from "./messages.module.css";
 export default function ChatCanvas() {
   const groupRef = useRef(null);
   const streamerBotEvents = useStreamEvents();
-  const chatEvent = useAlert(
+  const chatEvents = useAlert(
     streamerBotEvents.channel.filter(
       (alert) =>
         alert?.event?.source === "Raw" &&
@@ -30,14 +30,13 @@ export default function ChatCanvas() {
         alert?.data?.name === "Chat Event"
     )
   );
-  const hightlighted = useHighlight(
-    streamerBotEvents.channel
-    // .filter(
-    //   (alert) =>
-    //     alert?.event?.source === "Raw" &&
-    //     alert?.event?.type === "Action" &&
-    //     alert?.data?.name === "Stream Events"
-    // )
+  // const highlighted = useHighlight(
+  //   streamerBotEvents.channel.filter(
+  //     (alert) =>
+  //       alert?.event?.source === "Raw" &&
+  //       alert?.event?.type === "Action" &&
+  //       alert?.data?.name === "Highlight"
+  //   )
   );
 
   return (
@@ -53,15 +52,18 @@ export default function ChatCanvas() {
           <hemisphereLight color={0xffffff} intensity={0.3} />
           <pointLight theatreKey="Light" color={0xffffff} intensity={0.3} />
           <group ref={groupRef}>
-            {chatEvent
-              .reverse()
-              .map((channelAlert, index) =>
-                channelAlert !== "" ? (
+            {chatEvents
+              .sort(
+                (chatEventA, chatEventB) =>
+                  -chatEventA.timeStamp.localeCompare(chatEventB.timeStamp)
+              )
+              .map((chatEvent) =>
+                chatEvent !== "" ? (
                   <ChatBox
-                    key={channelAlert.timeStamp}
-                    channelAlert={channelAlert}
-                    index={index}
-                    allAlerts={chatEvent}
+                    key={chatEvent.timeStamp}
+                    channelAlert={chatEvent}
+                    // highlighted={highlighted.messageId === chatEvent.messageId}
+                    // anyMessageHighlighted={highlighted.messageId !== ""}
                   />
                 ) : null
               )}
@@ -72,7 +74,11 @@ export default function ChatCanvas() {
   );
 }
 
-function ChatBox({ channelAlert, index, allAlerts }) {
+function ChatBox({
+  channelAlert,
+  highlighted = false,
+  anyMessageHighlighted = false,
+}) {
   const [isAsleep, setIsAsleep] = useState(false);
   const api = useRef(null);
   const meshRef = useRef(null);
@@ -106,50 +112,70 @@ function ChatBox({ channelAlert, index, allAlerts }) {
       messageBox.current.style.transform = `scale(1, ${descale})`;
       setBoxScale(heightMesh);
     }
-  });
 
-  useEffect(() => {
     if (
-      meshRef.current &&
-      meshRef.current.position &&
-      index === 0 &&
-      boxScale !== 1
+      meshRef.current.position.y + api.current.translation().y + boxScale / 2 >
+      topOfView
     ) {
-      const now = performance.now();
-      // we need a dynamically increasing step as a step in physics
-      // may only happen once per 2 or 3 calls of this effect
-      const translateStep = now * 0.000005;
+      const translateStep = 0.1;
       const nextPosition = api.current.translation().y - translateStep;
 
-      if (
-        meshRef.current.position.y +
-          api.current.translation().y +
-          boxScale / 2 >
-        topOfView
-      ) {
-        api.current.setNextKinematicTranslation({
-          x: 0,
-          y: nextPosition,
-          z: 0,
-        });
-        setPositionY(nextPosition);
-      }
+      api.current.setNextKinematicTranslation({
+        x: 0,
+        y: nextPosition,
+        z: 0,
+      });
     }
-  }, [staticPositionY, boxScale]);
+
+    // we may trash highlighting here for the moment as this don't
+    // seem to work, and possibly due to upstream expectations / limitations
+    // if (highlighted) {
+    //   const translateStep = 0.1;
+    //   const { x, y, z } = api.current.translation();
+    //   console.log({ x, y, z, api, meshRef, isAsleep });
+
+    //   const finalPosition = {
+    //     x: -2,
+    //     y: -5,
+    //     z: 0,
+    //   };
+    //   api.current.setNextKinematicTranslation({
+    //     x:
+    //       api.current.translation().x > finalPosition.x
+    //         ? finalPosition.x
+    //         : api.current.translation().x - translateStep,
+    //     y:
+    //       api.current.translation().y === finalPosition.y
+    //         ? finalPosition.y
+    //         : api.current.translation().y - translateStep,
+    //     z: 0,
+    //   });
+    // }
+    // else {
+    // console.dir({ x, y, z });
+    // api.current.setNextKinematicTranslation({
+    //   x: x - 2,
+    // });
+    // }
+  });
 
   const [matcap] = useMatcapTexture(
     // https://github.com/emmelleppi/matcaps/blob/master/matcap-list.json
-    "537387_75BBB9_152E5B_0E85E8",
+    highlighted ? 7 : "537387_75BBB9_152E5B_0E85E8",
     1024 // size of the texture ( 64, 128, 256, 512, 1024 )
   );
 
   return (
     <RigidBody
-      // type="fixed"
       colliders={false}
       onSleep={() => setIsAsleep(true)}
       onWake={() => setIsAsleep(false)}
-      type={index === 0 ? "kinematicPosition" : "dynamic"}
+      canSleep={false}
+      type={physicsDetermination({
+        anyMessageHighlighted,
+        highlighted,
+        physicsType: channelAlert.physicsType,
+      })}
       enabledRotations={[false, false, false]}
       enabledTranslations={[true, true, false]}
       density={50}
@@ -189,6 +215,22 @@ function ChatBox({ channelAlert, index, allAlerts }) {
   );
 }
 
+const physicsDetermination = ({
+  anyMessageHighlighted,
+  highlighted,
+  physicsType,
+}) => {
+  if (anyMessageHighlighted) {
+    if (!highlighted) {
+      return "fixed";
+    } else {
+      return "kinematicPosition";
+    }
+  } else {
+    return physicsType;
+  }
+};
+
 const ChatColliders = ({ position, gap, box, boxScale }) => {
   const chatY = (box.y * boxScale) / 2;
   return boxScale === 1 ? null : (
@@ -212,16 +254,23 @@ export function useAlert(stream) {
   useOperation(
     stream.forEach(function* (event) {
       if (!event?.data?.arguments?.message)
-        event = defaultChatEvent({ timeStamp: Date.now() });
+        event = defaultChatEvent({
+          timeStamp: event.timeStamp,
+        });
       const eventData = {
         ...event.data.arguments,
+        physicsType: "kinematicPosition",
         timeStamp: event.timeStamp,
       };
       console.log(eventData);
-      setState((currentState) => [
-        ...(currentState.length > 15 ? currentState.slice(1) : currentState),
-        eventData,
-      ]);
+      setState((currentState) =>
+        (currentState.length > 15 ? [...currentState].slice(1) : currentState)
+          .map((chatEvent) => {
+            chatEvent.physicsType = "dynamic";
+            return chatEvent;
+          })
+          .concat([eventData])
+      );
     }),
     [stream]
   );
@@ -229,7 +278,7 @@ export function useAlert(stream) {
 }
 
 export function useHighlight(stream) {
-  let [state, setState] = useState({});
+  let [state, setState] = useState({ messageId: "" });
   useOperation(
     stream.forEach(function* (event) {
       console.log(event);
@@ -250,7 +299,7 @@ let defaultChatEvent = ({ timeStamp }) => ({
     id: "xxxxxxxxx",
     name: "Chat Event",
     arguments: {
-      messageId: "asdasdasd",
+      messageId: `messageId ${timeStamp}`,
       message: "boop",
       publishedAt: "2022-12-23T12:08:23.438531-06:00",
       userProfileUrl:
