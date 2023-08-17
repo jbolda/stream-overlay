@@ -27,8 +27,8 @@
   },
   "homepage": "https://github.com/jbolda/stream-overlay#readme",
   "volta": {
-    "node": "16.15.1",
-    "npm": "8.13.2"
+    "node": "18.17.1",
+    "npm": "9.8.1"
   },
   "dependencies": {
     "@effection/react": "2.2.0",

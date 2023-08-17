@@ -29,7 +29,8 @@ export default function ModelCanvas() {
   const streamerBotEvents = useStreamEvents();
   const dropCommand = streamerBotEvents.channel.filter(
     (event) =>
-      event?.event?.source === "Command" && event?.data?.command === "!drop"
+      event?.data?.name === "Command" &&
+      event?.data?.arguments?.command === "!drop"
   );
 
   return (
