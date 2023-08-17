@@ -20,8 +20,9 @@ export default function Model({
   const [drop, toggleDrop] = useState(true);
   useAlert(
     dropCommand.filter(
-      (alert) =>
-        alert.data.message === "" || filterModels("chair", alert.data.message)
+      (command) =>
+        command?.data?.arguments?.input0 === "" ||
+        filterModels("chair", command?.data?.arguments?.input0)
     ),
     toggleDrop
   );
