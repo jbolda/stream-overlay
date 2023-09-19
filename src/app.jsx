@@ -48,9 +48,7 @@ export function App() {
         path="chat"
         element={
           <React.Suspense fallback={<>...</>}>
-            <div className={classes.wrapper}>
-              <ChatCanvas />
-            </div>
+            <ChatCanvas />
           </React.Suspense>
         }
       />
