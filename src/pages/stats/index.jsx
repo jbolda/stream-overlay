@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useStreamEvents } from "../../context/stream-events.jsx";
 import { useOperation } from "@effection/react";
 
@@ -14,14 +14,31 @@ export default function AlertCanvas() {
 
   return (
     <ul className={classes.stats}>
-      {console.log(Object.entries(commandHandler))}
       {Object.entries(commandHandler).map(([command, counter]) => (
         <li key={command} className={classes.commandGroup}>
           <span className={classes.commandName}>{command}: </span>
-          <span className={classes.commandCounter}>{counter}</span>
+          <Counter text={counter} />
         </li>
       ))}
     </ul>
+  );
+}
+
+function Counter({ text }) {
+  const counterRef = useRef(null);
+  useEffect(() => {
+    counterRef.current.classList.add(classes.commandTransition);
+    let transitionDelay = setTimeout(() => {
+      counterRef.current.classList.remove(classes.commandTransition);
+    }, 1000);
+    return () => {
+      clearTimeout(transitionDelay);
+    };
+  }, [text]);
+  return (
+    <span ref={counterRef} className={classes.commandCounter}>
+      {text}
+    </span>
   );
 }
 
