@@ -1,5 +1,6 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
+const DefaultCanvas = React.lazy(() => import("./pages/default/index.jsx"));
 const AlertCanvas = React.lazy(() => import("./pages/alerts/index.jsx"));
 const ModelCanvas = React.lazy(() => import("./pages/models/index.jsx"));
 const Chat = React.lazy(() => import("./pages/chat/index.jsx"));
@@ -16,11 +17,7 @@ export function App() {
         element={
           <React.Suspense fallback={<>...</>}>
             <div className={classes.wrapper}>
-              <ModelCanvas />
-            </div>
-            {/* the lowest puts it on top */}
-            <div className={classes.wrapper}>
-              <AlertCanvas />
+              <DefaultCanvas />
             </div>
           </React.Suspense>
         }

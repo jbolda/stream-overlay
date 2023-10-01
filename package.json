@@ -32,25 +32,25 @@
   },
   "dependencies": {
     "@effection/react": "2.2.0",
-    "@react-spring/three": "^9.5.2",
-    "@react-three/drei": "^9.46.7",
-    "@react-three/fiber": "^8.9.1",
-    "@react-three/rapier": "0.11.1",
-    "@theatre/core": "^0.5.0",
-    "@theatre/r3f": "^0.5.0",
-    "@theatre/studio": "^0.5.0",
+    "@react-spring/three": "^9.7.3",
+    "@react-three/drei": "^9.85.2",
+    "@react-three/fiber": "^8.14.3",
+    "@react-three/rapier": "1.1.1",
+    "@theatre/core": "^0.7.0",
+    "@theatre/r3f": "^0.7.0",
+    "@theatre/studio": "^0.7.0",
     "effection": "^2.0.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.3.0",
-    "three": "^0.139.2"
+    "react-router-dom": "^6.16.0",
+    "three": "^0.156.1"
   },
   "devDependencies": {
-    "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
-    "@vitejs/plugin-react": "^2.0.1",
+    "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
+    "@vitejs/plugin-react": "^4.1.0",
     "events": "3.3.0",
-    "rollup-plugin-polyfill-node": "^0.10.2",
-    "vite": "^3.0.8"
+    "rollup-plugin-polyfill-node": "^0.12.0",
+    "vite": "^4.4.9"
   },
   "overrides": {
     "@effection/react": {

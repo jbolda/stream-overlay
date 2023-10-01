@@ -81,7 +81,7 @@ export const WithStreamEvents = ({ children }) => {
         id: "0",
         list: {
           general: ["Custom"],
-          command: ["Message"],
+          command: ["Triggered", "Cooldown"],
           youtube: ["Message", "MessageDeleted", "UserBanned"],
           raw: ["Action"],
         },
