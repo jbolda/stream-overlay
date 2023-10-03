@@ -1,9 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { useStreamEvents } from "../context/stream-events.jsx";
+import { useOperation } from "@effection/react";
 import { useTransition, animated } from "@react-spring/three";
 import { Text3D, Float, useMatcapTexture } from "@react-three/drei";
 
-export const TextLayer = ({ channelAlert }) => {
-  const transition = useTransition(channelAlert, {
+// const offsetPosition = { x: 20, y: 20, z: 20 };
+const offsetPosition = { x: 0, y: 0, z: 0 };
+// const initialRotation = { x: -1.2, y: -2, z: -1.2, w: 1.0 };
+export const TextLayer = () => {
+  const streamerBotEvents = useStreamEvents();
+  const channelAlert = useAlert(
+    streamerBotEvents.channel.filter(
+      (alert) =>
+        alert?.data?.name === "Command" &&
+        alert?.data?.arguments?.command === "!3d"
+    )
+  );
+
+  const transition = useTransition(channelAlert?.arguments?.rawInput, {
     from: { scale: 0, wait: 0 },
     enter: (item) => async (next, cancel) => {
       await next({ scale: 1 });
@@ -18,12 +32,13 @@ export const TextLayer = ({ channelAlert }) => {
     },
   });
 
-  const [matcap] = useDynamicTexture(channelAlert);
+  const [matcap] = useDynamicTexture(channelAlert?.arguments?.rawInput);
 
   return (
     <Float floatIntensity={5} speed={2}>
       {transition(({ scale }, alert) => {
-        const wordsArray = alert.message.split(" ");
+        console.log(alert);
+        const wordsArray = alert.split(" ");
         if (wordsArray[0].startsWith("index")) wordsArray.shift();
         const numberOfWords = wordsArray.length + 1;
         const wordsPerLine = Math.floor(numberOfWords / 3);
@@ -53,7 +68,16 @@ export const TextLayer = ({ channelAlert }) => {
                   height={0.2} // default is 0.2
                   bevelEnabled
                   bevelSize={0.05}
-                  position={[-0.5 * (numberOfLetters / 2), -index * 0.9, 0]}
+                  position={[
+                    offsetPosition.x + -0.5 * (numberOfLetters / 2),
+                    offsetPosition.y + -index * 0.9,
+                    offsetPosition.z,
+                  ]}
+                  // rotation={[
+                  //   initialRotation.x,
+                  //   initialRotation.y,
+                  //   initialRotation.z,
+                  // ]}
                 >
                   {messageChunk}
                   <meshMatcapMaterial matcap={matcap} />
@@ -72,8 +96,8 @@ export function useDynamicTexture(alert) {
   let matcap;
 
   let mat = matDefault;
-  if (alert.message?.startsWith("index:")) {
-    let matInput = alert.message?.split(" ")[0];
+  if (alert?.startsWith("index:")) {
+    let matInput = alert?.split(" ")[0];
     console.log(matInput);
     let [indexArg, materialArg] = matInput.split(":");
     if (materialArg) mat = parseInt(materialArg.trim()); // ?? materialArg;
@@ -89,4 +113,17 @@ export function useDynamicTexture(alert) {
   matcap = matcapLoaded;
 
   return [matcap];
+}
+
+export function useAlert(stream) {
+  let [state, setState] = useState({ message: "" });
+  useOperation(
+    stream.forEach(function* (event) {
+      setState({
+        ...event.data,
+      });
+    }),
+    [stream]
+  );
+  return state;
 }
