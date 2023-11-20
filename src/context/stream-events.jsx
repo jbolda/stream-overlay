@@ -9,7 +9,7 @@ export function useStreamEvents() {
   return useContext(StreamEventsContext);
 }
 
-export function createSocket(port, host) {
+export function createSocket(port, host, channel) {
   const readyState = new Map();
   readyState.set(0, "CONNECTING");
   readyState.set(1, "OPEN");
@@ -42,8 +42,12 @@ export function createSocket(port, host) {
       console.log(readyState.get(socket.readyState));
 
       return {
-        send: (message) => socket.send(JSON.stringify(message)),
-        subscribe: ({ id, list, channel }) => {
+        send: function* (message) {
+          socket.send(JSON.stringify(message));
+          const response = yield once(socket, "message");
+          return JSON.parse(response.data);
+        },
+        subscribe: function* ({ id, list }) {
           socket.send(
             JSON.stringify({
               request: "Subscribe",
@@ -52,7 +56,7 @@ export function createSocket(port, host) {
             })
           );
 
-          return spawn(
+          yield spawn(
             on(socket, "message").forEach(function* (message) {
               const event = JSON.parse(message.data);
               console.log(event);
@@ -69,26 +73,30 @@ export const WithStreamEvents = ({ children }) => {
   let client = useResource({
     name: "StreamEventsClient",
     *init() {
-      const socket = yield createSocket(7890, "127.0.0.1");
       const channel = createChannel();
+      const socket = yield createSocket(7890, "127.0.0.1", channel);
 
-      socket.send({
+      const events = yield socket.send({
         request: "GetEvents",
-        id: "1",
+        id: "GetEvents",
+      });
+
+      const actions = yield socket.send({
+        request: "GetActions",
+        id: "GetActions",
       });
 
       yield socket.subscribe({
-        id: "0",
+        id: "Subscribe",
         list: {
           general: ["Custom"],
           command: ["Triggered", "Cooldown"],
           youtube: ["Message", "MessageDeleted", "UserBanned"],
           raw: ["Action"],
         },
-        channel,
       });
 
-      return { channel, client: socket };
+      return { channel, client: socket, context: { events, actions } };
     },
   });
 
