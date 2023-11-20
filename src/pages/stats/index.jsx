@@ -7,19 +7,24 @@ import * as classes from "./stats.module.css";
 export default function AlertCanvas() {
   const streamerBotEvents = useStreamEvents();
   const commandHandler = useCommand(
-    streamerBotEvents.channel.filter(({ data }) => {
+    streamerBotEvents.channel.filter((boop) => {
+      console.log({ boop });
+      const { data } = boop;
       return data?.arguments?.eventSource === "command";
-    })
+    }),
+    streamerBotEvents.context.actions
   );
 
   return (
     <ul className={classes.stats}>
-      {Object.entries(commandHandler).map(([command, counter]) => (
-        <li key={command} className={classes.commandGroup}>
-          <span className={classes.commandName}>{command}: </span>
-          <Counter text={counter} />
-        </li>
-      ))}
+      {Object.entries(commandHandler)
+        .reverse()
+        .map(([command, counter]) => (
+          <li key={command} className={classes.commandGroup}>
+            <span className={classes.commandName}>{command}: </span>
+            <Counter text={counter} />
+          </li>
+        ))}
     </ul>
   );
 }
@@ -42,8 +47,17 @@ function Counter({ text }) {
   );
 }
 
-export function useCommand(stream) {
-  let [state, setState] = useState({ ["!drop"]: 0, ["!3d"]: 0 });
+export function useCommand(stream, { actions }) {
+  const commands = actions
+    .filter((action) => action.group === "Reward Filters")
+    .reduce(
+      (actionList, action) => {
+        actionList[action.name] = 0;
+        return actionList;
+      },
+      { ["!drop"]: 0, ["!3d"]: 0 }
+    );
+  let [state, setState] = useState(commands);
   useOperation(
     stream.forEach(function* (event) {
       setState((prevState) => ({
