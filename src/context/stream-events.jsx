@@ -38,6 +38,14 @@ export function createSocket(port, host, channel) {
         })
       );
 
+      yield spawn(
+        on(socket, "message").forEach(function* (message) {
+          const event = JSON.parse(message.data);
+          console.log(event);
+          channel.send(event);
+        })
+      );
+
       yield once(socket, "open");
       console.log(readyState.get(socket.readyState));
 
@@ -53,14 +61,6 @@ export function createSocket(port, host, channel) {
               request: "Subscribe",
               events: list,
               id,
-            })
-          );
-
-          yield spawn(
-            on(socket, "message").forEach(function* (message) {
-              const event = JSON.parse(message.data);
-              console.log(event);
-              channel.send(event);
             })
           );
         },
