@@ -1,5 +1,5 @@
 import React, { createContext, useContext } from "react";
-import { createChannel, spawn, on, once, ensure } from "effection";
+import { createChannel, spawn, on, once, ensure, sleep } from "effection";
 import { useResource } from "@effection/react";
 
 export const StreamEventsContext = createContext(null);
@@ -47,6 +47,11 @@ export function createSocket(port, host, channel) {
       );
 
       yield once(socket, "open");
+
+      // takes a moment for the client to setup,
+      // if we hit it to fast, our messages are offset
+      // as the first message is a status, wait for that
+      yield once(socket, "message");
       console.log(readyState.get(socket.readyState));
 
       return {
@@ -76,11 +81,6 @@ export const WithStreamEvents = ({ children }) => {
       const channel = createChannel();
       const socket = yield createSocket(7890, "127.0.0.1", channel);
 
-      const events = yield socket.send({
-        request: "GetEvents",
-        id: "GetEvents",
-      });
-
       const actions = yield socket.send({
         request: "GetActions",
         id: "GetActions",
@@ -94,6 +94,11 @@ export const WithStreamEvents = ({ children }) => {
           youtube: ["Message", "MessageDeleted", "UserBanned"],
           raw: ["Action"],
         },
+      });
+
+      const events = yield socket.send({
+        request: "GetEvents",
+        id: "GetEvents",
       });
 
       return { channel, client: socket, context: { events, actions } };
