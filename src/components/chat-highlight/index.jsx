@@ -4,6 +4,9 @@ import { useOperation } from "@effection/react";
 import { useFrame } from "@react-three/fiber";
 import { RoundedBox, Html, useMatcapTexture } from "@react-three/drei";
 import { RigidBody, CuboidCollider, vec3 } from "@react-three/rapier";
+import { Root, Container, Text } from "@react-three/uikit";
+import { Card, CardHeader, CardTitle, CardContent } from "../default/card.tsx";
+import { Box3, Vector3 } from "three";
 
 import * as messageClasses from "./messages.module.css";
 import { useEffect } from "react";
@@ -11,18 +14,65 @@ import { useEffect } from "react";
 export default function ChatHighlight() {
   const streamerBotEvents = useStreamEvents();
   const highlighted = useHighlight(
-    streamerBotEvents.channel.filter(
-      (alert) =>
-        alert?.event?.source === "Raw" &&
-        alert?.event?.type === "Action" &&
-        alert?.data?.name === "Highlight"
-    )
+    streamerBotEvents.channel.filter(filterEvents)
   );
 
-  return highlighted.map((h) => (
-    <ChatBox key={h.timeStamp} highlighted={h.data.arguments} />
-  ));
+  return (
+    <>
+      {highlighted.map((h) => (
+        <ChatBox key={h.timeStamp} highlighted={eventDataNormalize(h)} />
+      ))}
+    </>
+  );
 }
+
+const filterEvents = (alert) => {
+  if (alert?.event?.source === "Raw" && alert?.event?.type === "Action") {
+    if (alert?.data?.name === "Highlight" || alert?.data?.name === "Follow") {
+      return true;
+    } else if (
+      alert?.data?.name === "Chat Event" &&
+      (alert?.data?.arguments?.triggerName === "Super Chat" ||
+        alert?.data?.arguments?.triggerName === "Super Sticker")
+    ) {
+      return true;
+    }
+  }
+  return false;
+};
+
+const eventDataNormalize = (highlight) => {
+  console.log({ highlight });
+  switch (highlight?.data?.name) {
+    case "Highlight":
+      return {
+        runningActionId: highlight?.data?.arguments?.runningActionId,
+        title: highlight?.data?.arguments?.displayName,
+        message: highlight?.data?.arguments?.message,
+      };
+    case "Follow":
+      return {
+        runningActionId: highlight?.data?.arguments?.runningActionId,
+        title: highlight?.data?.arguments?.triggerName,
+        message: `Thanks ${highlight?.data?.user?.display}!`,
+      };
+    case "Chat Event":
+      if (highlight?.data?.arguments?.triggerName === "Super Chat") {
+        return {
+          runningActionId: highlight?.data?.arguments?.runningActionId,
+          title: `${highlight?.data?.user?.display} super chats ${highlight?.data?.arguments?.amount}`,
+          message: highlight?.data?.arguments?.message,
+        };
+      } else if (highlight?.data?.arguments?.triggerName === "Super Sticker") {
+        return {
+          runningActionId: highlight?.data?.arguments?.runningActionId,
+          title: highlight?.data?.user?.display,
+          message: `_sticks ${highlight?.data?.arguments?.amount} to the wall_`,
+        };
+      }
+  }
+  return {};
+};
 
 function ChatBox({ highlighted }) {
   const [meshHeight, setMeshHeight] = useState(1);
@@ -32,7 +82,7 @@ function ChatBox({ highlighted }) {
   const meshRef = useRef(null);
   const messageBox = useRef(null);
 
-  const pixelsPerUnit = 28;
+  const meshScale = 0.003;
   const box = { x: 12, y: 1, z: 1 };
   const boxInitialRotation = { x: -1.2, y: -2, z: -1.2, w: 1.0 };
   const topOfView = 28;
@@ -54,8 +104,8 @@ function ChatBox({ highlighted }) {
 
         rigidBody.current.applyTorqueImpulse(
           vec3({
-            x: 25000 * Math.random() * (Math.random() < 0.5 ? -1 : 1),
-            y: 35000 * Math.random() * (Math.random() < 0.5 ? -1 : 1),
+            x: 35000 * Math.random() * (Math.random() < 0.5 ? -1 : 1),
+            y: 85000 * Math.random() * (Math.random() < 0.5 ? -1 : 1),
             z: 0,
           }),
           true
@@ -65,25 +115,15 @@ function ChatBox({ highlighted }) {
   }, [finalPosition]);
 
   useFrame(() => {
-    if (
-      messageBox.current &&
-      meshRef.current &&
-      meshRef.current.scale.y === 1
-    ) {
-      const { scrollHeight } = messageBox.current;
-      const heightMesh = scrollHeight / pixelsPerUnit;
-      const descale = 1 / heightMesh;
-      meshRef.current.scale.set(1, heightMesh, 1);
-      meshRef.current.updateMatrix();
-      messageBox.current.style.transform = `scale(1, ${descale})`;
-      setMeshHeight(heightMesh);
+    if (messageBox.current && messageBox.current !== null && meshRef.current) {
+      const currentSize = messageBox.current.size.v;
+      if (meshHeight !== currentSize[0]) {
+        setMeshHeight(currentSize[0]);
+      }
     }
 
-    if (!finalPosition && meshRef.current && rigidBody.current) {
-      if (
-        meshRef.current.position.y + rigidBody.current.translation().y >
-        finalPositionSpot
-      ) {
+    if (!finalPosition && rigidBody.current) {
+      if (rigidBody.current.translation().y > finalPositionSpot) {
         const translateStep = 0.1;
         const nextPosition = rigidBody.current.translation().y - translateStep;
 
@@ -98,12 +138,6 @@ function ChatBox({ highlighted }) {
       }
     }
   });
-
-  const [matcap] = useMatcapTexture(
-    // https://github.com/emmelleppi/matcaps/blob/master/matcap-list.json
-    2,
-    1024 // size of the texture ( 64, 128, 256, 512, 1024 )
-  );
 
   return (
     <RigidBody
@@ -124,8 +158,27 @@ function ChatBox({ highlighted }) {
       angularDamping={50}
       ref={rigidBody}
     >
-      <CuboidCollider args={[box.x / 2, meshHeight / 2, box.z / 2]} />
-      <RoundedBox
+      <CuboidCollider
+        ref={meshRef}
+        args={[box.x / 2, meshHeight * meshScale, box.z / 2]}
+      />
+      <Root key={highlighted?.runningActionId || "none"} ref={messageBox}>
+        <Card maxWidth={1100} backgroundColor="teal">
+          <CardHeader>
+            <CardTitle>
+              <Text fontWeight="bold" fontSize={96}>
+                {highlighted.title}
+              </Text>
+            </CardTitle>
+          </CardHeader>
+          <CardContent flexDirection="column" gap={16}>
+            <Container flexDirection="column">
+              <Text fontSize={64}>{highlighted.message}</Text>
+            </Container>
+          </CardContent>
+        </Card>
+      </Root>
+      {/* <RoundedBox
         args={[box.x, box.y, box.z]}
         key={highlighted?.runningActionId || "none"}
         ref={meshRef}
@@ -134,15 +187,12 @@ function ChatBox({ highlighted }) {
         <Html position={[0, 0, box.z / 1.95]} transform={true} occlude={true}>
           <div className={messageClasses.container}>
             <div ref={messageBox}>
-              {/* <p>
-                <img src={highlighted.userProfileUrl} height="40px" />
-              </p> */}
               <p>{highlighted?.displayName}</p>
               <p>{highlighted?.message}</p>
             </div>
           </div>
         </Html>
-      </RoundedBox>
+      </RoundedBox> */}
     </RigidBody>
   );
 }

@@ -46,6 +46,7 @@ export function createSocket(port, host, channel) {
         })
       );
 
+      console.log("waiting for connection...");
       yield once(socket, "open");
 
       // takes a moment for the client to setup,
@@ -105,6 +106,8 @@ export const WithStreamEvents = ({ children }) => {
     },
   });
 
+  console.log({ client });
+
   if (!client || !client.type || client.type === "rejected") {
     return (
       <React.Fragment>
@@ -115,7 +118,7 @@ export const WithStreamEvents = ({ children }) => {
       </React.Fragment>
     );
   } else if (client.type === "pending") {
-    return <h1>loading...</h1>;
+    return null;
   } else {
     return (
       <StreamEventsContext.Provider value={client.value}>

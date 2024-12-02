@@ -1,7 +1,6 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 const DefaultCanvas = React.lazy(() => import("./pages/default/index.jsx"));
-const AlertCanvas = React.lazy(() => import("./pages/alerts/index.jsx"));
 const ModelCanvas = React.lazy(() => import("./pages/models/index.jsx"));
 const Chat = React.lazy(() => import("./pages/chat/index.jsx"));
 const Stats = React.lazy(() => import("./pages/stats/index.jsx"));
@@ -18,16 +17,6 @@ export function App() {
           <React.Suspense fallback={<>...</>}>
             <div className={classes.wrapper}>
               <DefaultCanvas />
-            </div>
-          </React.Suspense>
-        }
-      />
-      <Route
-        path="alerts"
-        element={
-          <React.Suspense fallback={<>...</>}>
-            <div className={classes.wrapper}>
-              <AlertCanvas />
             </div>
           </React.Suspense>
         }

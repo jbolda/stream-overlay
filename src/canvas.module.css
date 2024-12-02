@@ -1,11 +1,11 @@
 .canvas > canvas {
-    height: 100vh;
+  height: 100vh;
 }
 
 .wrapper {
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    height: 1080px;
-    width: 1920px;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  height: 1080px;
+  width: 1920px;
 }
